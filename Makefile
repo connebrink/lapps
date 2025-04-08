@@ -11,7 +11,7 @@ CXXFLAGS=-std=c++20
 CXXFLAGSREL=$(CXXFLAGS) -static -O2 -s -g0 -DNDEBUG
 CXXFLAGSDEB=$(CXXFLAGS) -O0 -g -DDEBUG
 
-LDLIBS=-lsfml-graphics -lsfml-window -lsfml-system
+LDLIBS=
 
 .PHONY: all
 
