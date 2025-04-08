@@ -22,7 +22,7 @@ void readAppDesktop(const auto& desktopFile, const auto& execForName) {
       continue;
     if (str.find("Name=") != string::npos && appName=="")
       appName = str.substr(str.find("Name=")+5,str.length());
-    if (str.find("Exec=") != string::npos) {
+    if (str.find("Exec=") != string::npos && appExec=="") {
       appExec = str.substr(str.find("Exec=")+5,str.length());
       if (appExec.find(" ") != string::npos) {
 	appExec = appExec.substr(0, appExec.find("%"));
