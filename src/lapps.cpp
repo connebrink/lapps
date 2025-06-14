@@ -5,13 +5,15 @@
 #include <vector>
 #include <filesystem>
 
+#include <algorithm>
+
 using namespace std;
 
 const int LSA_SUCCEEDED = 0;
 const int LSA_FOUND     = 10;
 const int LSA_NOTFOUND  = 20;
 
-void readAppDesktop(const auto& desktopFile, const auto& execForName) {
+void readAppDesktop(const auto& desktopFile, const auto& execForName, vector<string>& appNames) {
   ifstream appfile(desktopFile.path());
   string str;
   string appName;
@@ -28,7 +30,7 @@ void readAppDesktop(const auto& desktopFile, const auto& execForName) {
 	appExec = appExec.substr(0, appExec.find("%"));
       }
     }
-    if (str.find("NoDisplay=true") != string::npos)
+    if (str.find("NoDisplay") != string::npos && str.find("true") != string::npos)
       appIsHide = true;
   }
   if (appIsHide == false) {
@@ -38,30 +40,43 @@ void readAppDesktop(const auto& desktopFile, const auto& execForName) {
 	exit(LSA_FOUND);
       }
     }
-    else
-      cout << appName << "\n";
+    else {
+      if (find(appNames.begin(), appNames.end(), appName) == appNames.end()) {
+	appNames.push_back(appName);
+      }
+    }
+  }
+  else {
+    auto p = find(appNames.begin(), appNames.end(), appName);
+    if (p != appNames.end())
+      appNames.erase(p);
   }
 }
 
-void readApps(const auto& appDir, const auto& execForName) {
+void readApps(const auto& appDir, const auto& execForName, vector<string>& appNames) {
   namespace fs = std::filesystem;
   for (const auto& entry : fs::directory_iterator(appDir)) {
     if(entry.path().extension() == ".desktop") 
-      readAppDesktop(entry, execForName);
+      readAppDesktop(entry, execForName, appNames);
   }
 }
 
 int main(int argc, char *argv[])
 {
   vector<string> defaultAppsDirs {"/usr/share/applications",
-   				  "/usr/local/share/applications"};
+   				  "/usr/local/share/applications",
+				  "/home/clas/.local/share/applications"};
   string execForName;
   if (argc > 1)
     execForName = argv[1];
+  vector<string> appNames;
   for (const auto& appDir : defaultAppsDirs) {
-    readApps(appDir,  execForName);
+    readApps(appDir,  execForName, appNames);
   }
-  if (execForName == "")
+  if (execForName == "") {
+    for (const auto& aname : appNames)
+      cout << aname << "\n";
     return LSA_SUCCEEDED;
+  }
   return LSA_NOTFOUND;
 }
