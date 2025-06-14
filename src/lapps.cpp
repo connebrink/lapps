@@ -63,13 +63,17 @@ void readApps(const auto& appDir, const auto& execForName, vector<string>& appNa
 
 int main(int argc, char *argv[])
 {
-  vector<string> defaultAppsDirs {"/usr/share/applications",
-   				  "/usr/local/share/applications",
-				  "/home/clas/.local/share/applications"};
-  string execForName;
-  if (argc > 1)
-    execForName = argv[1];
   vector<string> appNames;
+  vector<string> defaultAppsDirs {"/usr/share/applications",
+   				  "/usr/local/share/applications"};
+  string execForName;
+  for (int i = 1; i < argc; ++i) {
+    string arg{argv[i]};
+    if (arg.length() >= 2 && arg[0] == '-' && arg[1] == 'D' )  
+      defaultAppsDirs.push_back(arg.substr(2, arg.length()));
+    else
+      execForName = arg;
+  }
   for (const auto& appDir : defaultAppsDirs) {
     readApps(appDir,  execForName, appNames);
   }
