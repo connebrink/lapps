@@ -1,2 +1,5 @@
 bin/
 trg/
+.cache/
+.clang-tidy
+compile_commands.json
